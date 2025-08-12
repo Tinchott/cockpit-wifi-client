@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ssid_list='{'
 index=0
 scan=$(nmcli -e no -g ssid dev wifi list --rescan yes)
