@@ -62,52 +62,65 @@ export const WifiForm = () => {
             {ssid}
         </MenuToggle>);
     return (
-        <Form>
-            <div>
-                <WifiInfo msg={msg} />
-            </div>
-            <FormGroup
-label="Nombre de la Red"
-               labelIcon={
-                   <Tooltip content={<div>Actualizar</div>}>
-                       <button type="button" aria-label="nombre de la red wifi a conectarse" onClick={e => { e.preventDefault(); setUpdate(update + 1); console.log(update) }} aria-describedby="form-name-01" className="pf-v5-c-form__group-label-help">
-                           <SyncAltIcon />
-                       </button>
-                   </Tooltip>
-               } isRequired fieldId="ssid"
+        <Form style={{
+            display: 'flex',
+            flexDirection: 'column',
+            overflowY: 'auto',
+            maxHeight: '80vh'
+        }}
+        >
+            <div
+                style={{
+                    flexGrow: 1,
+                    overflowY: 'auto',
+                    gap: '1rem'
+                }}
             >
-
-                <Select id="ssid" isOpen={isOpen} selected={ssid} onSelect={onSelect} onOpenChange={isOpen => setIsOpen(isOpen)} toggle={toggle} shouldFocusToggleOnSelect>
-                    <SelectList>
-                        {Object.keys(ssidItems).map((key) => {
-                            return (
-                                <SelectOption key={ key } value={ ssidItems[key] }>
-                                    { ssidItems[key] }
-                                </SelectOption>
-                            );
-                        })}
-                    </SelectList>
-                </Select>
-                <Checkbox label="Autoconectar" aria-label="autoconnect" id="autoconnect-checkbox" onChange={ () => setAutoconnect(!autoconnect)} isChecked={autoconnect} />
-            </FormGroup>
-            <FormGroup label="Contraseña" isRequired fieldId="password-field">
-                <TextInput isRequired type="text" id="password" name="simple-form-email-01" value={password} onChange={handlePasswordChange} />
-            </FormGroup>
-            <FormGroup role="group" fieldId="basic-form-checkbox-group" label="Configuracion de IP">
-                <Checkbox label="DHCP" aria-label="DHCP" id="dhcp-checkbox" onChange={ () => setDhcp(!dhcp)} isChecked={dhcp} />
-            </FormGroup>
-            <FormGroup label="IP" isRequired={!dhcp} fieldId="simple-form-phone-01">
-                <TextInput isRequired={!dhcp} type="ip" id="ip" name="form-ip-01" placeholder="172.17.2.10" value={ip} onChange={handleIpChange} isDisabled={dhcp} />
-            </FormGroup>
-            <FormGroup label="Mascara de subred" isRequired={!dhcp} fieldId="simple-form-phone-01">
-                <TextInput isRequired={!dhcp} type="mask" id="mask" name="form-mask-01" placeholder="24" value={mask} onChange={handleMaskChange} isDisabled={dhcp} />
-            </FormGroup>
-            <FormGroup label="Puerta de enlace" isRequired={!dhcp} fieldId="simple-form-phone-01">
-                <TextInput isRequired={!dhcp} type="gateway" id="gateway" name="form-gateway-01" placeholder="172.17.2.1" value={gateway} onChange={handleGatewayChange} isDisabled={dhcp} />
-            </FormGroup>
-            <ActionGroup>
-                <Button variant="primary" onClick={connect}>Conectar</Button>
-            </ActionGroup>
+                <div style={{ overflowX: 'auto' }}>
+                    <WifiInfo msg={msg} />
+                </div>
+                <FormGroup
+                    label="Nombre de la Red"
+                    labelIcon={
+                        <Tooltip content={<div>Actualizar</div>}>
+                            <button type="button" aria-label="nombre de la red wifi a conectarse" onClick={e => { e.preventDefault(); setUpdate(update + 1); console.log(update) }} aria-describedby="form-name-01" className="pf-v5-c-form__group-label-help">
+                                <SyncAltIcon />
+                            </button>
+                        </Tooltip>
+                    } isRequired fieldId="ssid"
+                >
+                    <Select id="ssid" isOpen={isOpen} selected={ssid} onSelect={onSelect} onOpenChange={isOpen => setIsOpen(isOpen)} toggle={toggle} shouldFocusToggleOnSelect>
+                        <SelectList>
+                            {Object.keys(ssidItems).map((key) => {
+                                return (
+                                    <SelectOption key={ key } value={ ssidItems[key] }>
+                                        { ssidItems[key] }
+                                    </SelectOption>
+                                );
+                            })}
+                        </SelectList>
+                    </Select>
+                    <Checkbox label="Autoconectar" aria-label="autoconnect" id="autoconnect-checkbox" onChange={ () => setAutoconnect(!autoconnect)} isChecked={autoconnect} />
+                </FormGroup>
+                <FormGroup label="Contraseña" isRequired fieldId="password-field">
+                    <TextInput isRequired type="text" id="password" name="simple-form-email-01" value={password} onChange={handlePasswordChange} />
+                </FormGroup>
+                <FormGroup role="group" fieldId="basic-form-checkbox-group" label="Configuracion de IP">
+                    <Checkbox label="DHCP" aria-label="DHCP" id="dhcp-checkbox" onChange={ () => setDhcp(!dhcp)} isChecked={dhcp} />
+                </FormGroup>
+                <FormGroup label="IP" isRequired={!dhcp} fieldId="simple-form-phone-01">
+                    <TextInput isRequired={!dhcp} type="ip" id="ip" name="form-ip-01" placeholder="172.17.2.10" value={ip} onChange={handleIpChange} isDisabled={dhcp} />
+                </FormGroup>
+                <FormGroup label="Mascara de subred" isRequired={!dhcp} fieldId="simple-form-phone-01">
+                    <TextInput isRequired={!dhcp} type="mask" id="mask" name="form-mask-01" placeholder="24" value={mask} onChange={handleMaskChange} isDisabled={dhcp} />
+                </FormGroup>
+                <FormGroup label="Puerta de enlace" isRequired={!dhcp} fieldId="simple-form-phone-01">
+                    <TextInput isRequired={!dhcp} type="gateway" id="gateway" name="form-gateway-01" placeholder="172.17.2.1" value={gateway} onChange={handleGatewayChange} isDisabled={dhcp} />
+                </FormGroup>
+                <ActionGroup>
+                    <Button variant="primary" onClick={connect}>Conectar</Button>
+                </ActionGroup>
+            </div>
         </Form>
     );
 };

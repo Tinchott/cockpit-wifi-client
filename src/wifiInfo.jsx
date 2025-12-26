@@ -9,34 +9,35 @@ export const WifiInfo = (props) => {
     React.useEffect(() => {
         const loadActiveConnections = async () => {
             try {
-                const activeList = await cockpit.spawn(
-                    ["nmcli", "-t", "--fields", "TYPE,DEVICE", "connection", "show", "--active"],
-                    { latency: "10000" }
+                // Get all devices, status and type
+                const allDevicesStatus = await cockpit.spawn(
+                    ["nmcli", "-t", "--fields", "DEVICE,STATE,TYPE", "device", "status"]
                 );
-                const lines = activeList.split('\n').filter(line => line.trim() !== '');
-
-                const devices = lines.map(line => line.split(':')[1]);
-
+                // Parse and set the keys to show in the webpage
+                const linesAllDevices = allDevicesStatus.split('\n').filter(line => line.trim() !== '');
                 const allConnectionsData = [];
-                const keys = ["Conexión Activa", "Estado", "Dirección IP"];
+                const keysAllDevices = ["Dispositivo", "Estado", "Tipo", "Dirección IP"];
+                const inactiveStates = ["disconnected", "unavailable", "deactivated"];
 
-                for (const device of devices) {
-                    const data = await cockpit.spawn(
-                        ["nmcli", "-t", "-e", "no", "-g", "general.connection,general.state,ip4.address", "device", "show", device],
-                        { latency: "10000" }
+                // Prepair info to show
+                for (const line of linesAllDevices) {
+                    const statusValues = line.split(':');
+                    const deviceName = statusValues[0];
+                    // Get IP of the selected device
+                    const ipDevice = await cockpit.spawn(
+                        ["nmcli", "-t", "-g", "ip4.address", "device", "show", deviceName],
                     );
-                    
-                    const values = data.split("\n").filter(line => line.trim() !== '');
-                    
-                    // Create an object for each device's info
+                    const ipAddress = ipDevice.trim();
+                    const allValues = [...statusValues, ipAddress];
+                    const isDeviceActive = !inactiveStates.some(state => statusValues[1].startsWith(state));
                     const connectionInfo = {
-                        device: device,
-                        details: values.map((item, index) => ({
-                            key: keys[index],
+                        device: deviceName,
+                        isActive: isDeviceActive,
+                        details: allValues.map((item, index) => ({
+                            key: keysAllDevices[index],
                             value: item
                         }))
                     };
-
                     allConnectionsData.push(connectionInfo);
                 }
                 setConnections(allConnectionsData);
@@ -53,60 +54,32 @@ export const WifiInfo = (props) => {
     return (
         <Alert
             variant="info"
-            title={
-                connections.length > 0 ? (
-                    connections.map((conn) => (
-                        <div key={conn.device}>
-                            <h4>Dispositivo: {conn.device}</h4>
-                            {conn.details.map((item) => (
-                                <p key={`${conn.device}-${item.key}`}>
-                                    {cockpit.format("$0: \t $1", [item.key, item.value])}
-                                </p>
-                            ))}
+            customIcon=" "
+        >{
+                connections.length > 0
+                    ? (
+                        <div style={{ display: 'flex', flexWrap: 'noWrap', overflowX: 'auto' }}>
+                            {connections.map((conn) => {
+                                const textColor = conn.isActive ? 'lightblue' : '#999'; // Cockpit blue: '#2B9AF3'
+                                return (
+                                    <div key={conn.device} style={{ border: '1px solid', padding: '1rem', color: textColor, flexShrink: "0" }}>
+                                        <h4>Dispositivo: {conn.device}</h4>
+                                        {conn.details.map((item) => (
+                                            item.key !== "Dispositivo" &&
+                                            <p key={`${conn.device}-${item.key}`}>
+                                                {cockpit.format("$0: \t $1", [item.key, item.value])}
+                                            </p>
+                                        ))}
+                                    </div>
+                                );
+                            })}
                         </div>
-                    ))
-                ) : (
-                    <p>No hay dispositivos de red activos.</p>
-                )
+                    )
+                    : (
+                        <p>No hay dispositivos de red activos.</p>
+                    )
             }
-        >
             <p>{mssg}</p>
         </Alert>
     );
 };
-/*    
-    React.useEffect(() => {
-        const keys = ["Conexión Activa", "Estado", "Dirección IP"];
-        const loadState = async () => {
-            const data = await cockpit.spawn(["nmcli", "-t", "-e", "no", "-g", "general.connection,general.state,ip4.address", "device", "show", "wlp0s20f3"], { latency:"10000" });
-            const arr = data.split("\n");
-            const json = arr.map((item, index) => {
-                return {
-                    key: keys[index],
-                    value: item
-                };
-            });
-            setState(json);
-        };
-        loadState()
-                .catch(err => {
-                    console.log(err);
-                });
-        setMssg(props.msg);
-    }, [props.msg]);
-
-    return (
-        <Alert
-        variant="info"
-        title={ state.map((item) => {
-            return (
-                cockpit.format("$0: \t $1\n $2", [item.key, item.value])
-
-            );
-        })}
-        >
-            <p>{mssg}</p>
-        </Alert>
-    );
-};
-*/
